@@ -11,13 +11,14 @@ test.beforeEach(async ({ page }) => {
   //Login with valid credentials
   await homePage.clickLoginLink();
   await loginPage.login();
+  await page.waitForTimeout(1000);
 
   //Clear Shopping Cart
   await loginPage.clearShoppingCart();
   await page.waitForTimeout(1000);
 });
 
-test('dashboard shopping cart test', async ({ page }) => {
+test('dashboard adding shopping cart test', async ({ page }) => {
   //Hover over Computers menu and click Desktops
   await page.getByRole('link', { name: 'Computers' }).first().hover();
   await page.getByRole('link', { name: 'Desktops' }).click();
@@ -111,7 +112,7 @@ test('dashboard wishlist test', async ({ page }) => {
   await expect(page.getByRole('link', { name: 'Wishlist (2)' })).toBeVisible();
 });
 
-test('shopping cart test', async ({ page }) => {
+test('shopping cart total price test', async ({ page }) => {
   //Before clear the shopping cart, add 3 items to the cart
   await page.getByRole('link', { name: 'Computers' }).first().hover();
   await page.getByRole('link', { name: 'Desktops' }).click();
@@ -137,7 +138,8 @@ test('shopping cart test', async ({ page }) => {
 
   //Click ‘Go To Cart’ – button
   await page.getByRole('button', { name: 'Go to cart' }).click();
-  
+  await page.waitForTimeout(1000);
+
   //Verify that we navigate to Shopping Cart Page
   await expect(page.getByRole('heading', { name: 'Shopping cart' })).toBeVisible();
 
