@@ -8,6 +8,8 @@ export class RegisterPage {
     readonly password: Locator;
     readonly confirmPassword: Locator;
     readonly getRegisterButton: Locator;
+    readonly errorMessage: Locator;
+    readonly successMessage: Locator;
 
     constructor(page: Page) {
         this.page = page;
@@ -17,6 +19,8 @@ export class RegisterPage {
         this.password = page.locator('#Password');
         this.confirmPassword = page.locator('#ConfirmPassword');
         this.getRegisterButton = page.getByRole('button', { name: 'Register' });
+        this.errorMessage = page.locator('div.validation-summary-errors');
+        this.successMessage = page.locator('div.result');
     }  
     
     async clickRegister() {
