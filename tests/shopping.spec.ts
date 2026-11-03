@@ -10,7 +10,7 @@ test.beforeEach(async ({ page }) => {
 
   //Login with valid credentials
   await homePage.clickLoginLink();
-  await loginPage.login();
+  await loginPage.login('bella.aye@gmail.com','gs123456');
   await page.waitForTimeout(1000);
 
   //Clear Shopping Cart

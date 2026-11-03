@@ -2,11 +2,15 @@ import { type Locator, type Page } from '@playwright/test';
 
 export class LoginPage {
     readonly page: Page;
+    readonly email: Locator;
+    readonly password: Locator;
     readonly getLoginButton: Locator;
     readonly getLogoutButton: Locator;
 
     constructor(page: Page) {
         this.page = page;
+        this.email = page.getByRole('textbox', { name: 'Email:' });
+        this.password = page.getByRole('textbox', { name: 'Password:' });
         this.getLoginButton = page.getByRole('button', { name: 'Log in' });
         this.getLogoutButton = page.getByRole('link', { name: 'Log out' });
     }
@@ -19,13 +23,11 @@ export class LoginPage {
         await this.getLogoutButton.click();
     }
 
-    async login() {
+    async login(email: string, password: string) {
         //Login with the correct credentials 
-        await this.page.getByRole('textbox', { name: 'Email:' }).click();
-        await this.page.getByRole('textbox', { name: 'Email:' }).fill('bella.aye@gmail.com');
-        await this.page.getByRole('textbox', { name: 'Password:' }).click();
-        await this.page.getByRole('textbox', { name: 'Password:' }).fill('gs123456');
-        await this.getLoginButton.click();
+        await this.email.fill(email);
+        await this.password.fill(password);
+        await this.clickLoginButton();
     }
 
     async clearShoppingCart() {
