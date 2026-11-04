@@ -7,12 +7,15 @@ import RegisterPage from '../pages/register-page';
 test.beforeEach(async ({page}) => {
   const homePage = new HomePage(page); 
   const loginPage = new LoginPage(page);
-  await homePage.gotoDemo();   
 
-  //Click LogIn Menu
-  await homePage.clickLoginLink();   
-  //Click  Register button
-  await loginPage.clickRegisterButton();
+  await Promise.all([
+    await homePage.gotoDemo(),
+
+    //Login with valid credentials
+    await homePage.clickLoginLink(),
+    //Click  Register button
+    await loginPage.clickRegisterButton()
+  ]);
 });
 
 test('register existing user', async ({ page }) => {
