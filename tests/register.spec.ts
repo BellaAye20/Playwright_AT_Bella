@@ -48,3 +48,14 @@ test('register new user', async ({ page }) => {
   //Click Log out Menu
   await homePage.clickLogoutLink();
 });
+
+test('register new user - invalid data', async ({ page }) => {
+  const registerPage = new RegisterPage(page);
+
+  //Fill invalid data in the register form 
+  await registerPage.register('Female', 'User', '010', 'test@gmail.', '123456', '12345');
+
+  //Verify that validation errors show at Email and Password fields 
+  await expect(registerPage.fieldError.first()).toHaveText('Wrong email');
+  await expect(registerPage.fieldError.nth(1)).toHaveText('The password and confirmation password do not match.');
+});

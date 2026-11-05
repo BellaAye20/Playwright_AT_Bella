@@ -10,6 +10,7 @@ export class RegisterPage {
     readonly getRegisterButton: Locator;
     readonly errorMessage: Locator;
     readonly successMessage: Locator;
+    readonly fieldError: Locator;
 
     constructor(page: Page) {
         this.page = page;
@@ -21,6 +22,7 @@ export class RegisterPage {
         this.getRegisterButton = page.getByRole('button', { name: 'Register' });
         this.errorMessage = page.locator('div.validation-summary-errors');
         this.successMessage = page.locator('div.result');
+        this.fieldError = page.locator('span.field-validation-error');
     }  
     
     async clickRegister() {
