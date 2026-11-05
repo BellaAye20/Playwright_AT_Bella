@@ -144,17 +144,19 @@ test('shopping cart total price test', async ({ page }) => {
     await page.getByRole('link', { name: 'Desktops' }).nth(1).click(),
     await page.getByRole('button', { name: 'Add to cart' }).nth(2).click(),
     await page.locator('#add-to-cart-button-74').click(),
-
-    //Hover over Shopping Cart – Menu
-    await page.locator('#topcartlink').hover()
+    await page.waitForTimeout(3000)    
   ]);
+
+  //Hover over Shopping Cart – Menu
+  await page.locator('#topcartlink').hover();
   await page.waitForTimeout(2000);
 
   //Verify that ‘Go To Cart’ – button is displayed
   await expect(page.locator('input.cart-button')).toBeVisible()
 
   //Click ‘Go To Cart’ – button
-  await shoppingPage.clickGotoCart();
+  await page.locator('input.cart-button').click();
+  //await shoppingPage.clickGotoCart();
   await page.waitForTimeout(1000);
 
   //Verify that we navigate to Shopping Cart Page
