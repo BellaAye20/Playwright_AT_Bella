@@ -74,9 +74,15 @@ test('dashboard adding shopping cart test', async ({ page }) => {
 
     await page.locator('#add-to-cart-button-72').click(),
 
+    //Verify that after every item added a notification with text : The product has been added to your shopping cart
+    await expect(page.getByText('The product has been added to')).toBeVisible(),
+
     await page.getByRole('link', { name: 'Desktops' }).nth(1).click(),
 
     await page.getByRole('button', { name: 'Add to cart' }).nth(1).click(),
+
+    //Verify that after every item added a notification with text : The product has been added to your shopping cart
+    await expect(page.getByText('The product has been added to')).toBeVisible(),
 
     await page.getByRole('radio', { name: 'GB [+100.00]' }).check(),
     await page.locator('#add-to-cart-button-16').click(),
@@ -126,7 +132,7 @@ test('dashboard wishlist test', async ({ page }) => {
 test('shopping cart total price test', async ({ page }) => {
   const shoppingPage = new ShoppingPage(page);
 
-  //Before clear the shopping cart, add 3 items to the cart
+  //After clear the shopping cart, add 3 items to the cart
   await page.getByRole('link', { name: 'Computers' }).first().hover();
   await page.getByRole('link', { name: 'Desktops' }).click();
   await page.waitForTimeout(1000);
