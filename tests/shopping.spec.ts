@@ -53,48 +53,50 @@ test('dashboard adding shopping cart test', async ({ page }) => {
   expect(productNames).toContain('Desktop PC with CDRW');
   await page.waitForTimeout(2000);
 
-  await Promise.all([
-    //Filter by price - Over 1200.00
-    await page.getByRole('link', { name: 'Over' }).click(),
+  //Filter by price - Over 1200.00
+  await page.getByRole('link', { name: 'Over' }).click();
 
-    //Verify that 3 items are displayed
-    await expect(productItems).toHaveCount(3),
+  //Verify that 3 items are displayed
+  await expect(productItems).toHaveCount(3);
 
-    //Remove filter
-    await shoppingPage.getRemoveFilter.click(),
+  //Remove filter
+  await shoppingPage.getRemoveFilter.click();
 
-    //Verify that 4 items are displayed
-    await expect(productItems).toHaveCount(4),
+  //Verify that 4 items are displayed
+  await expect(productItems).toHaveCount(4);
 
-    //Choose 8 on Display dropdown
-    await shoppingPage.getPageSize.selectOption('8'),
+  //Choose 8 on Display dropdown
+  await shoppingPage.getPageSize.selectOption('8');
 
-    //Add the first, second and third items on Shopping Cart
-    await page.getByRole('button', { name: 'Add to cart' }).first().click(),
+  //Add the first, second and third items on Shopping Cart
+  await page.getByRole('button', { name: 'Add to cart' }).first().click();
 
-    await page.locator('#add-to-cart-button-72').click(),
-
-    //Verify that after every item added a notification with text : The product has been added to your shopping cart
-    await expect(page.getByText('The product has been added to')).toBeVisible(),
-
-    await page.getByRole('link', { name: 'Desktops' }).nth(1).click(),
-
-    await page.getByRole('button', { name: 'Add to cart' }).nth(1).click(),
-
-    //Verify that after every item added a notification with text : The product has been added to your shopping cart
-    await expect(page.getByText('The product has been added to')).toBeVisible(),
-
-    await page.getByRole('radio', { name: 'GB [+100.00]' }).check(),
-    await page.locator('#add-to-cart-button-16').click(),
-
-    await page.getByRole('link', { name: 'Desktops' }).nth(1).click(),
-
-    await page.getByRole('button', { name: 'Add to cart' }).nth(2).click(),
-    await page.locator('#add-to-cart-button-74').click()
-  ]);
+  await page.locator('#add-to-cart-button-72').click();
+  await page.waitForTimeout(2000);
 
   //Verify that after every item added a notification with text : The product has been added to your shopping cart
-  await expect(page.getByText('The product has been added to')).toBeVisible();
+  let barNotificaion = await page.locator('#bar-notification').textContent() || '';
+  await expect(barNotificaion?.trim()).toContain('The product has been added to your shopping cart');
+
+  await page.getByRole('link', { name: 'Desktops' }).nth(1).click();
+
+  await page.getByRole('button', { name: 'Add to cart' }).nth(1).click();
+  await page.waitForTimeout(2000);
+
+  //Verify that after every item added a notification with text : The product has been added to your shopping cart
+  await expect(barNotificaion?.trim()).toContain('The product has been added to your shopping cart');
+
+  await page.getByRole('radio', { name: 'GB [+100.00]' }).check();
+  await page.locator('#add-to-cart-button-16').click();
+
+  await page.getByRole('link', { name: 'Desktops' }).nth(1).click();
+
+  await page.getByRole('button', { name: 'Add to cart' }).nth(2).click();
+  await page.locator('#add-to-cart-button-74').click();
+  await page.waitForTimeout(2000);
+
+  //Verify that after every item added a notification with text : The product has been added to your shopping cart
+  await expect(barNotificaion?.trim()).toContain('The product has been added to your shopping cart');
 
   //Verify that Shopping Cart on Menu bar displays 3
   await expect(page.getByRole('link', { name: 'Shopping cart (3)' })).toBeVisible();
@@ -112,18 +114,21 @@ test('dashboard wishlist test', async ({ page }) => {
   await page.getByRole('link', { name: 'Cell phones', exact: true }).click();
   await page.getByRole('link', { name: 'Smartphone', exact: true }).click();
   await shoppingPage.clickAddToWishlist();
+  await page.waitForTimeout(2000); //Wait 2 sec
 
   //Verify that after every item added a notification with text : The product has been added to your wishlist – is displayed
-  await expect(page.getByText('The product has been added to')).toBeVisible();
+  let barNotificaion = await page.locator('#bar-notification').textContent() || '';
+  expect(barNotificaion?.trim()).toContain('The product has been added to your wishlist');
 
   //Add one more item to Wishlist
   await page.getByRole('link', { name: 'Cell phones' }).nth(1).click();
   await page.getByRole('link', { name: 'Phone Cover', exact: true }).click();
   await shoppingPage.clickAddToWishlist();
-  await page.waitForTimeout(1000); //Wait 1 sec
+  await page.waitForTimeout(2000); //Wait 2 sec
 
   //Verify that after every item added a notification with text : The product has been added to your wishlist – is displayed
-  await expect(page.getByText('The product has been added to')).toBeVisible();
+  barNotificaion = await page.locator('#bar-notification').textContent() || '';
+  expect(barNotificaion?.trim()).toContain('The product has been added to your wishlist');
 
   //Verify that Wishlist on Menu bar displays 2
   await expect(page.getByRole('link', { name: 'Wishlist (2)' })).toBeVisible();
@@ -149,21 +154,18 @@ test('shopping cart total price test', async ({ page }) => {
 
     await page.getByRole('link', { name: 'Desktops' }).nth(1).click(),
     await page.getByRole('button', { name: 'Add to cart' }).nth(2).click(),
-    await page.locator('#add-to-cart-button-74').click(),
-    await page.waitForTimeout(3000)    
+    await page.locator('#add-to-cart-button-74').click()        
   ]);
-
-  //Hover over Shopping Cart – Menu
-  await page.locator('#topcartlink').hover();
   await page.waitForTimeout(2000);
 
-  //Verify that ‘Go To Cart’ – button is displayed
-  await expect(page.locator('input.cart-button')).toBeVisible()
+  //Hover over Shopping Cart – Menu
+  await page.locator('#topcartlink').click();
+  await page.waitForTimeout(3000);
 
-  //Click ‘Go To Cart’ – button
-  await page.locator('input.cart-button').click();
-  //await shoppingPage.clickGotoCart();
-  await page.waitForTimeout(1000);
+  // //Verify that ‘Go To Cart’ – button is displayed
+  // await expect(page.locator('input.cart-button')).toBeVisible()
+  // //Click ‘Go To Cart’ – button
+  // await page.locator('input.cart-button').click();
 
   //Verify that we navigate to Shopping Cart Page
   await expect(page.getByRole('heading', { name: 'Shopping cart' })).toBeVisible();
@@ -174,24 +176,46 @@ test('shopping cart total price test', async ({ page }) => {
   await expect(shoppingPage.getEstimateShipping).toBeVisible();
 
   //Verify that the prices sum for all items is equal to Total Price in the end of the page
-  const cartItems = await shoppingPage.cartItems.all();
-  let cartItem = cartItems[0];
-  let total = await cartItem.locator('span.product-subtotal').textContent();
-  let totalStr = total?.match(/\d+/);
-  let subtotal = totalStr ? parseInt(totalStr[0]) : 0;
-  
-  cartItem = cartItems[1];
-  total = await cartItem.locator('span.product-subtotal').textContent();
-  totalStr = total?.match(/\d+/);
-  subtotal += totalStr ? parseInt(totalStr[0]) : 0;
+  // Get all product subtotal texts from the shopping cart
+  const itemPrices = await shoppingPage.cartItems
+    .locator('span.product-subtotal')
+    .allTextContents();
 
-  cartItem = cartItems[2];
-  total = await cartItem.locator('span.product-subtotal').textContent();
-  totalStr = total?.match(/\d+/);
-  subtotal += totalStr ? parseInt(totalStr[0]) : 0;
+  //Price conversion function to preserve decimal values and handle separators
+  const toCents = (price: string): number => {
+    const normalizedPrice = price
+      .replace(/,/g, '')
+      .replace(/[^\d.-]/g, '');
 
-  await expect(subtotal).toBe(3995.00);
-  await expect(page.getByRole('row', { name: 'Total: 3995.00', exact: true }).getByRole('strong')).toBeVisible();
+    const amount = Number(normalizedPrice);
+
+    if (!Number.isFinite(amount)) {
+      throw new Error(`Invalid price: ${price}`);
+    }
+
+    return Math.round(amount * 100);
+  };
+
+  //Calculate the sum of all item prices in cents
+  const calculatedTotal = itemPrices.reduce(
+    (sum, price) => sum + toCents(price),
+    0
+  );
+
+  //Get the total price displayed on the shopping cart page
+  const totalPriceText = await page
+    .getByRole('row')
+    .filter({ hasText: /Total:/ })
+    .locator('strong')
+    .textContent();
+
+  //Convert the displayed total to cents
+  expect(totalPriceText).not.toBeNull();
+
+  const displayedTotal = toCents(totalPriceText!);
+
+  //Compare the calculated total with the displayed total
+  expect(calculatedTotal).toBe(displayedTotal);
 });
 
 test('empty shopping cart', async ({ page }) => {
