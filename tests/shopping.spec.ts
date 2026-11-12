@@ -7,12 +7,9 @@ import { createUniqueUser } from '../test-data/users';
 
 test.beforeEach(async ({ page }) => {
   const homePage = new HomePage(page);
-  const loginPage = new LoginPage(page);
   const registerPage = new RegisterPage(page);
-  const shoppingPage = new ShoppingPage(page);
 
   await homePage.gotoDemo();
-  await page.waitForTimeout(1000);
 
   //Navigate to Register page
   await homePage.clickRegisterLink();
@@ -21,13 +18,8 @@ test.beforeEach(async ({ page }) => {
   const user = createUniqueUser();
   await registerPage.register(user.gender, user.firstName, user.lastName, user.email, user.password, user.password);
 
-  //Login with above credentials
-  await homePage.clickLoginLink();
-  await loginPage.login(user.email, user.password);
-  await page.waitForTimeout(1000);
-  //Clear Shopping Cart
-  await shoppingPage.clearShoppingCart();
-  await page.waitForTimeout(2000);
+  //Wait until registration process is completed
+  await expect(registerPage.successMessage).toHaveText('Your registration completed');
 });
 
 test('dashboard adding shopping cart test', async ({ page }) => {
@@ -59,8 +51,7 @@ test('dashboard adding shopping cart test', async ({ page }) => {
   expect(productNames).toContain('Build your own cheap computer');
   expect(productNames).toContain('Build your own computer');
   expect(productNames).toContain('Build your own expensive computer');
-  expect(productNames).toContain('Desktop PC with CDRW');
-  await page.waitForTimeout(2000);
+  expect(productNames).toContain('Desktop PC with CDRW');  
 
   //Filter by price - Over 1200.00
   await page.getByRole('link', { name: 'Over' }).click();
@@ -78,34 +69,7 @@ test('dashboard adding shopping cart test', async ({ page }) => {
   await shoppingPage.getPageSize.selectOption('8');
 
   //Add the first, second and third items on Shopping Cart
-  await page.getByRole('button', { name: 'Add to cart' }).first().click();
-
-  await page.locator('#add-to-cart-button-72').click();
-  await page.waitForTimeout(2000);
-
-  //Verify that after every item added a notification with text : The product has been added to your shopping cart
-  let barNotificaion = await page.locator('#bar-notification').textContent() || '';
-  await expect(barNotificaion?.trim()).toContain('The product has been added to your shopping cart');
-
-  await page.getByRole('link', { name: 'Desktops' }).nth(1).click();
-
-  await page.getByRole('button', { name: 'Add to cart' }).nth(1).click();
-  await page.waitForTimeout(2000);
-
-  //Verify that after every item added a notification with text : The product has been added to your shopping cart
-  await expect(barNotificaion?.trim()).toContain('The product has been added to your shopping cart');
-
-  await page.getByRole('radio', { name: 'GB [+100.00]' }).check();
-  await page.locator('#add-to-cart-button-16').click();
-
-  await page.getByRole('link', { name: 'Desktops' }).nth(1).click();
-
-  await page.getByRole('button', { name: 'Add to cart' }).nth(2).click();
-  await page.locator('#add-to-cart-button-74').click();
-  await page.waitForTimeout(2000);
-
-  //Verify that after every item added a notification with text : The product has been added to your shopping cart
-  await expect(barNotificaion?.trim()).toContain('The product has been added to your shopping cart');
+  await shoppingPage.addDesktopProductToCart(); 
 
   //Verify that Shopping Cart on Menu bar displays 3
   await expect(page.getByRole('link', { name: 'Shopping cart (3)' })).toBeVisible();
@@ -123,21 +87,17 @@ test('dashboard wishlist test', async ({ page }) => {
   await page.getByRole('link', { name: 'Cell phones', exact: true }).click();
   await page.getByRole('link', { name: 'Smartphone', exact: true }).click();
   await shoppingPage.clickAddToWishlist();
-  await page.waitForTimeout(2000); //Wait 2 sec
 
   //Verify that after every item added a notification with text : The product has been added to your wishlist – is displayed
-  let barNotificaion = await page.locator('#bar-notification').textContent() || '';
-  expect(barNotificaion?.trim()).toContain('The product has been added to your wishlist');
+  await expect(page.locator('#bar-notification')).toContainText('The product has been added to your wishlist');
 
   //Add one more item to Wishlist
   await page.getByRole('link', { name: 'Cell phones' }).nth(1).click();
   await page.getByRole('link', { name: 'Phone Cover', exact: true }).click();
   await shoppingPage.clickAddToWishlist();
-  await page.waitForTimeout(2000); //Wait 2 sec
 
   //Verify that after every item added a notification with text : The product has been added to your wishlist – is displayed
-  barNotificaion = await page.locator('#bar-notification').textContent() || '';
-  expect(barNotificaion?.trim()).toContain('The product has been added to your wishlist');
+  await expect(page.locator('#bar-notification')).toContainText('The product has been added to your wishlist');
 
   //Verify that Wishlist on Menu bar displays 2
   await expect(page.getByRole('link', { name: 'Wishlist (2)' })).toBeVisible();
@@ -149,34 +109,12 @@ test('shopping cart total price test', async ({ page }) => {
   //After clear the shopping cart, add 3 items to the cart
   await page.getByRole('link', { name: 'Computers' }).first().hover();
   await page.getByRole('link', { name: 'Desktops' }).click();
-  await page.waitForTimeout(1000);
-
-  await Promise.all([
-    await page.getByRole('button', { name: 'Add to cart' }).first().click(),
-    await page.locator('#add-to-cart-button-72').click(),
-
-    await page.getByRole('link', { name: 'Desktops' }).nth(1).click(),
-    await page.getByRole('button', { name: 'Add to cart' }).nth(1).click(),
-
-    await page.getByRole('radio', { name: 'GB [+100.00]' }).check(),
-    await page.locator('#add-to-cart-button-16').click(),
-
-    await page.getByRole('link', { name: 'Desktops' }).nth(1).click(),
-    await page.getByRole('button', { name: 'Add to cart' }).nth(2).click(),
-    await page.locator('#add-to-cart-button-74').click()        
-  ]);
-  await page.waitForTimeout(2000);
+  await shoppingPage.addDesktopProductToCart();   
 
   //Hover over Shopping Cart – Menu
   await page.locator('#topcartlink').click();
-  await page.waitForTimeout(3000);
-
-  // //Verify that ‘Go To Cart’ – button is displayed
-  // await expect(page.locator('input.cart-button')).toBeVisible()
-  // //Click ‘Go To Cart’ – button
-  // await page.locator('input.cart-button').click();
-
-  //Verify that we navigate to Shopping Cart Page
+  
+  //Wait until Shopping Cart page is displayed
   await expect(page.getByRole('heading', { name: 'Shopping cart' })).toBeVisible();
 
   //Verify that 3 buttons are displayed
@@ -234,27 +172,19 @@ test('empty shopping cart', async ({ page }) => {
   //Before clear the shopping cart, add 3 items to the cart
   await page.getByRole('link', { name: 'Computers' }).first().hover();
   await page.getByRole('link', { name: 'Desktops' }).click();
-  await page.getByRole('button', { name: 'Add to cart' }).first().click();
-  await page.locator('#add-to-cart-button-72').click();
-  
-  await page.getByRole('link', { name: 'Desktops' }).nth(1).click();
-  await page.getByRole('button', { name: 'Add to cart' }).nth(1).click();
-  await page.getByRole('radio', { name: 'GB [+100.00]' }).check();
-  await page.locator('#add-to-cart-button-16').click();
-   await page.waitForTimeout(2000);
-  await page.getByRole('link', { name: 'Desktops' }).nth(1).click();
-  await page.getByRole('button', { name: 'Add to cart' }).nth(2).click();
-  await page.locator('#add-to-cart-button-74').click();
-  await page.waitForTimeout(3000);
+  await shoppingPage.addDesktopProductToCart(); 
 
   //Go to Cart
   await homePage.clickShoppingCartLink();
+
+  //Wait until Shopping Cart page is displayed
+  await expect(page.getByRole('heading', { name: 'Shopping cart' })).toBeVisible();
 
   //Verify that 3 items exist in the shopping cart table
   await expect(shoppingPage.cartItems).toHaveCount(3);
 
   //Delete the first item on shopping cart and repeat until the last item is deleted
-  const initialRowCount  = await shoppingPage.cartItems.count();
+  const initialRowCount = await shoppingPage.cartItems.count();
 
   for (let i = 0; i < initialRowCount; i++) {
     // Get the number of rows before removal

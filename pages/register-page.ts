@@ -36,7 +36,7 @@ export class RegisterPage {
         await this.email.fill(email);
         await this.password.fill(password);
         await this.confirmPassword.fill(confirmPassword);
-        await this.clickRegister();
+        await this.clickRegister();        
     }   
  
 }

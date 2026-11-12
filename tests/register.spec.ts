@@ -4,24 +4,22 @@ import { LoginPage } from '../pages/login-page';
 import RegisterPage from '../pages/register-page';
 import { createUniqueUser } from '../test-data/users';
 
-test.beforeEach(async ({page}) => {
-  const homePage = new HomePage(page); 
+test.beforeEach(async ({ page }) => {
+  const homePage = new HomePage(page);
   const loginPage = new LoginPage(page);
 
-  await Promise.all([
-    await homePage.gotoDemo(),
+  await homePage.gotoDemo();
 
-    //Login with valid credentials
-    await homePage.clickLoginLink(),
-    //Click  Register button
-    await loginPage.clickRegisterButton()
-  ]);
+  //Login with valid credentials
+  await homePage.clickLoginLink();
+  //Click  Register button
+  await loginPage.clickRegisterButton();
 });
 
 test('register existing user', async ({ page }) => {
   const homePage = new HomePage(page);
   const registerPage = new RegisterPage(page);
-    
+
   //Check the title of the Register page
   await expect(page.getByRole('heading', { name: 'Register' })).toBeVisible();
 
@@ -42,7 +40,7 @@ test('register existing user', async ({ page }) => {
 });
 
 test('register new user and login with registered credentials', async ({ page }) => {
-  const homePage = new HomePage(page); 
+  const homePage = new HomePage(page);
   const loginPage = new LoginPage(page);
   const registerPage = new RegisterPage(page);
 
