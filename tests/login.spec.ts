@@ -1,20 +1,22 @@
 import { test, expect } from '@playwright/test';
 import { HomePage } from '../pages/home-page';
 import { LoginPage } from '../pages/login-page';
-
+import RegisterPage from '../pages/register-page';
+import { createUniqueUser } from '../test-data/users';
 
 test.beforeEach(async ({page}) => {
   const homePage = new HomePage(page); 
   await homePage.gotoDemo();
 
-  //Navigate to the login page
-  await homePage.clickLoginLink();
 });
 
 test('login with incorrect credentials - email', async ({ page }) => {
   const loginPage = new LoginPage(page);    
   const homePage = new HomePage(page);
   
+  //Navigate to the login page
+  await homePage.clickLoginLink();
+
   //Enter unregistered email address and some password
   await loginPage.login('incorrect@yopmail.com','gs123456');
   
@@ -31,8 +33,23 @@ test('login with incorrect credentials - email', async ({ page }) => {
 test('login with incorrect credentials - password', async ({ page }) => {
   const loginPage = new LoginPage(page);    
   const homePage = new HomePage(page); 
-  //Enter a registered email address and an incorrect password
-  await loginPage.login('bella.aye@gmail.com','incorrect');
+  const registerPage = new RegisterPage(page);
+
+  //Navigate to Register page
+  await homePage.clickRegisterLink();
+
+  //Create new user
+  const user = createUniqueUser();
+  await registerPage.register(user.gender, user.firstName, user.lastName, user.email, user.password, user.password);
+
+  //Click Log out Menu
+  await homePage.clickLogoutLink();
+
+  //Navigate to login page
+  await homePage.clickLoginLink();
+
+  //Use correct email but incorrect password
+  await loginPage.login(user.email,'wrongpassword');
   
   //Verify that the expected login error is displayed
   await expect(loginPage.errorMessage).toContainText('Login was unsuccessful. Please correct the errors and try again.');
@@ -47,13 +64,27 @@ test('login with incorrect credentials - password', async ({ page }) => {
 test('valid login with correct credentials', async ({ page }) => {
   const loginPage = new LoginPage(page);
   const homePage = new HomePage(page); 
+  const registerPage = new RegisterPage(page);
+  
+  //Navigate to Register page
+  await homePage.clickRegisterLink();
+
+  //Create new user
+  const user = createUniqueUser();
+  await registerPage.register(user.gender, user.firstName, user.lastName, user.email, user.password, user.password);
+
+  //Click Log out Menu
+  await homePage.clickLogoutLink();
+
+  //Navigate to login page
+  await homePage.clickLoginLink();
 
   //Login with the correct credentials 
-  await loginPage.login('bella.aye@gmail.com','gs123456');
+  await loginPage.login(user.email, user.password);
 
   //Verify that login is successful
   await expect(page.getByRole('heading', { name: 'Welcome to our store' })).toBeVisible();
-  await expect(homePage.getEmailLink).toContainText('bella.aye@gmail.com');
+  await expect(homePage.getEmailLink).toContainText(user.email);
   await expect(homePage.getLogoutLink).toBeVisible();  
   
   //Click Log out

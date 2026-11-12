@@ -72,7 +72,8 @@ The original test scenarios were adapted to the Demo Web Shop application while 
 * **Description:** Create an existing user in register form.
 * **Steps:** 
   * Open the home page and clicks the Register link.
-  * Fill the register form using an existing email address.
+  * Register new user and log out.
+  * Go to Register page again and register new user with the same email.
   * Submit the form.
 * **Expected Result:** 
   * Verify the title of the Register page
@@ -84,12 +85,14 @@ The original test scenarios were adapted to the Demo Web Shop application while 
 * **Description:** Create a new user successfully with valid (gender, first name, last name, email, password, and confirm password) fields.
 * **Steps:** 
   * Open the home page and clicks the Register link.
-  * Fill the register form using valid data and a unique email.
-  * Submit the form.
+  * Register with a unique email and valid data.
+  * Log out.
+  * Log in with above registered credentials.
 * **Expected Result:** 
   * Verify the title of the Register page
   * Show the success message: `"Your registration completed"`.
   * Verify that new user can log out successfully.
+  * Verify that new user can log in successfully.
 
 ### Scenario 3: Register New User with Invalid Data
 * **File:** `tests/register.spec.ts`
@@ -118,8 +121,9 @@ The original test scenarios were adapted to the Demo Web Shop application while 
 * **Test Name:** `login with incorrect credentials - password`
 * **Description:** Login user with correct email, but incorrect password.
 * **Steps:** 
+  * Open the Register page and register new user.
   * Open the login page.
-  * Login using correct email, but enter incorrect password.
+  * Login using same email, but enter incorrect password.
 * **Expected Result:** 
   * Show the error message: `"Login was unsuccessful. Please correct the errors and try again."` and `"The credentials provided are incorrect"`.
   * Verify that the user still log out.
@@ -129,8 +133,9 @@ The original test scenarios were adapted to the Demo Web Shop application while 
 * **Test Name:** `valid login with correct credentials`
 * **Description:** Login user with correct email and password.
 * **Steps:** 
+  * Open the Register page and register new user.
   * Open the login page.
-  * Login using correct email and password.
+  * Login using same email and same password of newly created user.
 * **Expected Result:** 
   * Show the success message: `"Welcome to our store"`.
   * Verify that valid email address shows on menu.
@@ -141,6 +146,7 @@ The original test scenarios were adapted to the Demo Web Shop application while 
 * **Test Name:** `dashboard adding shopping cart test`
 * **Description:** Filter and add products to the shopping cart.
 * **Steps:** 
+  * Open the Register page and register new user.
   * Login user.
   * Clear shopping cart first.
   * Navigate to Desktops Page and choose 4 on Display dropdown.
@@ -159,6 +165,7 @@ The original test scenarios were adapted to the Demo Web Shop application while 
 * **Test Name:** `dashboard wishlist test`
 * **Description:** Add products to the wishlist.
 * **Steps:** 
+  * Open the Register page and register new user.
   * Login user.
   * Clear wishlist first.
   * Navigate to Cell phones page and add 2 items to the wishlist.
@@ -171,6 +178,7 @@ The original test scenarios were adapted to the Demo Web Shop application while 
 * **Test Name:** `shopping cart total price test`
 * **Description:** Calcuate the subtotal price of all items added to the shopping cart.
 * **Steps:** 
+  * Open the Register page and register new user.
   * Login user.
   * Clear shopping cart first.
   * Navigate to Desktops page and add 3 items to the cart.
@@ -185,6 +193,7 @@ The original test scenarios were adapted to the Demo Web Shop application while 
 * **Test Name:** `empty shopping cart`
 * **Description:** Clear the shopping cart.
 * **Steps:** 
+  * Open the Register page and register new user.
   * Login user.
   * Clear shopping cart first.
   * Navigate to Desktops page and add 3 items to the cart.

@@ -1,20 +1,29 @@
 import { test, expect } from '@playwright/test';
 import { HomePage } from '../pages/home-page';
 import { LoginPage } from '../pages/login-page';
+import RegisterPage from '../pages/register-page';
 import { ShoppingPage } from '../pages/shopping-page';
-
+import { createUniqueUser } from '../test-data/users';
 
 test.beforeEach(async ({ page }) => {
   const homePage = new HomePage(page);
   const loginPage = new LoginPage(page);
+  const registerPage = new RegisterPage(page);
   const shoppingPage = new ShoppingPage(page);
 
   await homePage.gotoDemo();
   await page.waitForTimeout(1000);
 
-  //Login with valid credentials
+  //Navigate to Register page
+  await homePage.clickRegisterLink();
+
+  //Create a unique user
+  const user = createUniqueUser();
+  await registerPage.register(user.gender, user.firstName, user.lastName, user.email, user.password, user.password);
+
+  //Login with above credentials
   await homePage.clickLoginLink();
-  await loginPage.login('bella.aye@gmail.com','gs123456');
+  await loginPage.login(user.email, user.password);
   await page.waitForTimeout(1000);
   //Clear Shopping Cart
   await shoppingPage.clearShoppingCart();
@@ -222,45 +231,43 @@ test('empty shopping cart', async ({ page }) => {
   const homePage = new HomePage(page);
   const shoppingPage = new ShoppingPage(page);
 
-  await Promise.all([
-    //Before clear the shopping cart, add 3 items to the cart
-    await page.getByRole('link', { name: 'Computers' }).first().hover(),
-    await page.getByRole('link', { name: 'Desktops' }).click(),
-    await page.getByRole('button', { name: 'Add to cart' }).first().click(),
-    await page.locator('#add-to-cart-button-72').click(),
-    
-    await page.getByRole('link', { name: 'Desktops' }).nth(1).click(),
-    await page.getByRole('button', { name: 'Add to cart' }).nth(1).click(),
-    await page.getByRole('radio', { name: 'GB [+100.00]' }).check(),
-    await page.locator('#add-to-cart-button-16').click(),
-   
-    await page.getByRole('link', { name: 'Desktops' }).nth(1).click(),
-    await page.getByRole('button', { name: 'Add to cart' }).nth(2).click(),
-    await page.locator('#add-to-cart-button-74').click(),
+  //Before clear the shopping cart, add 3 items to the cart
+  await page.getByRole('link', { name: 'Computers' }).first().hover();
+  await page.getByRole('link', { name: 'Desktops' }).click();
+  await page.getByRole('button', { name: 'Add to cart' }).first().click();
+  await page.locator('#add-to-cart-button-72').click();
+  
+  await page.getByRole('link', { name: 'Desktops' }).nth(1).click();
+  await page.getByRole('button', { name: 'Add to cart' }).nth(1).click();
+  await page.getByRole('radio', { name: 'GB [+100.00]' }).check();
+  await page.locator('#add-to-cart-button-16').click();
+   await page.waitForTimeout(2000);
+  await page.getByRole('link', { name: 'Desktops' }).nth(1).click();
+  await page.getByRole('button', { name: 'Add to cart' }).nth(2).click();
+  await page.locator('#add-to-cart-button-74').click();
+  await page.waitForTimeout(3000);
 
-    //Go to Cart
-    await homePage.clickShoppingCartLink()
-  ]);
+  //Go to Cart
+  await homePage.clickShoppingCartLink();
+
+  //Verify that 3 items exist in the shopping cart table
+  await expect(shoppingPage.cartItems).toHaveCount(3);
 
   //Delete the first item on shopping cart and repeat until the last item is deleted
-  const cartItems = await shoppingPage.cartItems.all();
-  let count = cartItems.length;
+  const initialRowCount  = await shoppingPage.cartItems.count();
 
-  for (let i = 0; i < count; i++) {
-    let beforeCardQty = await homePage.getShoppingCartLink.textContent();
-    const beforeQtyStr = beforeCardQty?.match(/\d+/);
-    const beforeQty = beforeQtyStr ? parseInt(beforeQtyStr[0]) : 0;
+  for (let i = 0; i < initialRowCount; i++) {
+    // Get the number of rows before removal
+    const beforeRowCount = await shoppingPage.cartItems.count();
 
-    const currentCart_FirstItems = await shoppingPage.cartItems.first();
+    // Remove the first item
+    const currentCart_FirstItems = shoppingPage.cartItems.first();
     await currentCart_FirstItems.locator('td.remove-from-cart input[type="checkbox"]').first().click();
+
     await shoppingPage.clickUpdateShoppingCart();
 
-    let afterCardQty = await homePage.getShoppingCartLink.textContent();
-    const afterQtyStr = afterCardQty?.match(/\d+/);
-    const afterQty = afterQtyStr ? parseInt(afterQtyStr[0]) : 0;
-
-    //Verify that the number of elements in Shopping Cart table is decreased by 1
-    await expect(beforeQty - afterQty).toBe(1);
+    // Verify that the table row count decreases by 1
+    await expect(shoppingPage.cartItems).toHaveCount(beforeRowCount - 1);
   }
 
   //Verify that Shopping Cart is empty
